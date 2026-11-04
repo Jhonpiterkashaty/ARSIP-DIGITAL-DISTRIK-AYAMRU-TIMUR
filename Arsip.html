@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Administrasi & Presensi - Distrik Ayamaru Timur</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e3a8a',
+                            900: '#0f172a',
+                            950: '#0a0f1d'
+                        },
+                        emerald: {
+                            600: '#059669',
+                            700: '#047857'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Professional Print Styles for Official Government Documents */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #print-section, #print-section * {
+                visibility: visible !important;
+            }
+            #print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+                padding: 10mm;
+                font-size: 11pt;
+                line-height: 1.5;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            th, td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                padding: 6px 8px !important;
+            }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl relative overflow-hidden my-8">
+            
+            <!-- Foto Kantor di Menu Login -->
+            <div class="relative h-44 w-full bg-slate-800 overflow-hidden">
+                <img src="kantor.jpg" onerror="this.onerror=null; this.src='kantor.jpeg';" alt="Kantor Distrik Ayamaru Timur" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent flex flex-col justify-end p-4 text-white">
+                    <span class="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">Resmi Pemerintah</span>
+                    <h2 class="text-sm font-bold tracking-tight">KANTOR DISTRIK AYAMARU TIMUR</h2>
+                    <p class="text-[10px] text-slate-300">Kabupaten Maybrat - Papua Barat Daya</p>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="text-center border-b border-slate-100 pb-3">
+                    <p class="text-xs font-semibold text-slate-700">Silakan Masukkan Username & Kata Sandi</p>
+                </div>
+
+                <!-- Pesan Error Login -->
+                <div id="login-error" class="hidden p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg text-center font-medium">
+                    Username atau Kata Sandi salah!
+                </div>
+
+                <form id="form-login" onsubmit="handleLogin(event)" class="space-y-3.5 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Username *</label>
+                        <input type="text" id="login-username" required placeholder="Contoh: admin.ayamarutimur" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kata Sandi *</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-lg text-[11px] text-slate-600 border border-slate-200 space-y-1">
+                        <p class="font-bold text-slate-800">Akun Demo yang Tersedia:</p>
+                        <p>• Admin: <code class="text-emerald-700 font-bold">admin.ayamarutimur</code> / <code class="text-slate-800 font-bold">password123</code></p>
+                        <p>• Kepala Distrik: <code class="text-emerald-700 font-bold">kadistrik.izakh</code> / <code class="text-slate-800 font-bold">password123</code></p>
+                        <p>• Staf Seksi: <code class="text-emerald-700 font-bold">staf.serafina</code> / <code class="text-slate-800 font-bold">password123</code></p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk Ke Sistem
+                    </button>
+                </form>
+                
+                <div class="text-center text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+                    Sistem Pengadministrasian & Persuratan Digital v2.5
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 z-30 transition-all duration-300 no-print">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center p-1 shadow-inner flex-shrink-0">
+                        <img src="logo.png" onerror="this.onerror=null; this.src='logo.jpg';" alt="Logo Maybrat" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xs tracking-wide text-white">DISTRIK AYAMARU TIMUR</h1>
+                        <p class="text-[10px] text-slate-400">Kabupaten Maybrat</p>
+                    </div>
+                </div>
+                <button id="toggle-mobile-menu" class="md:hidden text-slate-400 hover:text-white focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <nav id="nav-menu" class="p-4 space-y-1 hidden md:block">
+                <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">Menu Utama</div>
+                
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-emerald-600 text-white">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </button>
+
+                <button onclick="switchTab('surat-masuk')" id="nav-surat-masuk" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="fa-solid fa-inbox w-5 text-center"></i>
+                    <span>Surat Masuk</span>
+                </button>
+
+                <button onclick="switchTab('surat-keluar')" id="nav-surat-keluar" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="fa-solid fa-paper-plane w-5 text-center"></i>
+                    <span>Surat Keluar</span>
+                </button>
+
+                <button onclick="switchTab('presensi')" id="nav-presensi" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="fa-solid fa-user-check w-5 text-center"></i>
+                    <span>Daftar Hadir / Presensi</span>
+                </button>
+
+                <button onclick="switchTab('arsip')" id="nav-arsip" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="fa-solid fa-folder-open w-5 text-center"></i>
+                    <span>Arsip Digital</span>
+                </button>
+
+                <div class="pt-4 pb-2">
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">Laporan & Pengaturan</div>
+                </div>
+
+                <button onclick="switchTab('laporan')" id="nav-laporan" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="fa-solid fa-print w-5 text-center"></i>
+                    <span>Cetak Laporan</span>
+                </button>
+
+                <button id="btn-reset-demo" onclick="resetDataModal()" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-950/40 transition-colors mt-6">
+                    <i class="fa-solid fa-arrows-rotate w-5 text-center"></i>
+                    <span>Reset Data Demo</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
+            
+            <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm no-print">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800" id="page-title">Sistem Pengadministrasian & Persuratan Digital</h2>
+                    <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                        <i class="fa-solid fa-location-dot text-emerald-600"></i> Kantor Distrik Ayamaru Timur - Kabupaten Maybrat
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden sm:flex flex-col text-right">
+                        <span id="current-date" class="text-xs font-semibold text-slate-700">Senin, 1 Januari 2026</span>
+                        <span id="current-time" class="text-[11px] text-slate-500 font-mono">08:00:00 WIT</span>
+                    </div>
+
+                    <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar" class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm ring-2 ring-emerald-500">
+                            AD
+                        </div>
+                        <div class="hidden lg:block text-left">
+                            <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span id="user-display-name">Administrator App</span>
+                                <span id="user-role-badge" class="px-1.5 py-0.5 text-[9px] bg-emerald-100 text-emerald-800 font-bold rounded">ADMIN</span>
+                            </div>
+                            <div id="user-display-nip" class="text-[10px] text-slate-500">NIP. 19880520 201102 1 001</div>
+                        </div>
+
+                        <button onclick="handleLogout()" title="Keluar / Switch User" class="p-2 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-600 rounded-lg transition-colors border border-slate-200 ml-1">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none no-print"></div>
+
+            <!-- TAB CONTENT AREA -->
+            <div class="p-4 md:p-6 space-y-6 flex-1">
+
+                <!-- 1. DASHBOARD TAB -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-navy-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <span class="bg-emerald-500/20 text-emerald-300 text-xs font-medium px-3 py-1 rounded-full border border-emerald-500/30">
+                                Selamat Datang Kembali
+                            </span>
+                            <h3 class="text-2xl font-bold mt-2">Sistem Administrasi Terpadu Distrik Ayamaru Timur</h3>
+                            <p class="text-slate-300 text-sm mt-1 max-w-2xl">
+                                Kelola tata usaha surat masuk/keluar, presensi pegawai harian, dan kearsipan digital wilayah Distrik Ayamaru Timur dengan mudah dan transparan.
+                            </p>
+
+                            <div class="mt-4 flex flex-wrap gap-3">
+                                <button onclick="switchTab('presensi')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow flex items-center gap-2">
+                                    <i class="fa-solid fa-user-check"></i> Form Presensi Hari Ini
+                                </button>
+                                <button onclick="switchTab('surat-masuk')" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i> Catat Surat Masuk
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase">Total Surat Masuk</p>
+                                <h4 class="text-2xl font-bold text-slate-800 mt-1" id="stat-surat-masuk">0</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-inbox"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase">Total Surat Keluar</p>
+                                <h4 class="text-2xl font-bold text-slate-800 mt-1" id="stat-surat-keluar">0</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase">Hadir Hari Ini</p>
+                                <h4 class="text-2xl font-bold text-slate-800 mt-1" id="stat-presensi-today">0</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase">Arsip Digital</p>
+                                <h4 class="text-2xl font-bold text-slate-800 mt-1" id="stat-arsip">0</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Surat Masuk Terbaru
+                                </h4>
+                                <button onclick="switchTab('surat-masuk')" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                                    Lihat Semua <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
+                            </div>
+                            <div class="divide-y divide-slate-100 flex-1 overflow-x-auto" id="dashboard-recent-surat"></div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-slate-800 text-xs flex items-center gap-2 uppercase tracking-wide">
+                                        <i class="fa-solid fa-image text-emerald-600"></i> Kantor Distrik Ayamaru Timur
+                                    </h4>
+                                    <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">kantor.jpg</span>
+                                </div>
+                                <div class="rounded-lg overflow-hidden border border-slate-200 shadow-inner group relative">
+                                    <img src="kantor.jpg" onerror="this.onerror=null; this.src='kantor.jpeg';" alt="Kantor Distrik" class="w-full h-40 object-cover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. SURAT MASUK TAB -->
+                <div id="tab-surat-masuk" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Buku Register Surat Masuk</h3>
+                            <p class="text-xs text-slate-500">Pencatatan resmi surat instansi masuk ke Kantor Distrik Ayamaru Timur</p>
+                        </div>
+                        <button onclick="openModalSuratMasuk()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Tambah Surat Masuk
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-surat-masuk" onkeyup="renderSuratMasuk()" placeholder="Cari nomor, pengirim, atau perihal..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="printSuratMasukReport()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-print"></i> Cetak Buku Masuk
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                                        <th class="p-3.5">No. Agenda</th>
+                                        <th class="p-3.5">No. Surat & Tgl</th>
+                                        <th class="p-3.5">Pengirim</th>
+                                        <th class="p-3.5">Perihal & Ringkasan</th>
+                                        <th class="p-3.5">Lampiran File</th>
+                                        <th class="p-3.5 text-center">Aksi / Disposisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-surat-masuk-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SURAT KELUAR TAB -->
+                <div id="tab-surat-keluar" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Buku Register Surat Keluar</h3>
+                            <p class="text-xs text-slate-500">Dokumentasi surat edaran dan dinas keluar Kantor Distrik</p>
+                        </div>
+                        <button onclick="openModalSuratKeluar()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Catat Surat Keluar
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-surat-keluar" onkeyup="renderSuratKeluar()" placeholder="Cari nomor, tujuan, atau perihal..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="printSuratKeluarReport()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-print"></i> Cetak Buku Keluar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                                        <th class="p-3.5">No. Surat</th>
+                                        <th class="p-3.5">Tanggal Surat</th>
+                                        <th class="p-3.5">Tujuan Surat</th>
+                                        <th class="p-3.5">Perihal</th>
+                                        <th class="p-3.5">Lampiran File</th>
+                                        <th class="p-3.5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-surat-keluar-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PRESENSI PEGAWAI TAB -->
+                <div id="tab-presensi" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+                            <div class="border-b border-slate-100 pb-3">
+                                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                    <i class="fa-solid fa-user-check text-emerald-600"></i> Presensi Quick Check-In
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Catat kehadiran harian staf & kepala seksi</p>
+                            </div>
+
+                            <form id="form-quick-presensi" onsubmit="handleSavePresensi(event)" class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Staf / Pegawai *</label>
+                                    <select id="presensi-pegawai-select" required onchange="autofillPegawaiInfo()" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                        <option value="">-- Pilih Nama Pegawai --</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">NIP / ID</label>
+                                        <input type="text" id="presensi-nip" readonly class="w-full bg-slate-100 border border-slate-200 text-xs rounded-lg p-2 text-slate-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">Jabatan</label>
+                                        <input type="text" id="presensi-jabatan" readonly class="w-full bg-slate-100 border border-slate-200 text-xs rounded-lg p-2 text-slate-600">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Status Kehadiran *</label>
+                                    <select id="presensi-status" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                        <option value="Hadir">Hadir (Di Kantor)</option>
+                                        <option value="Dinas Luar">Dinas Luar (DL)</option>
+                                        <option value="Izin">Izin Resmi</option>
+                                        <option value="Sakit">Sakit</option>
+                                        <option value="Tanpa Keterangan">Tanpa Keterangan</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">Jam Masuk</label>
+                                        <input type="time" id="presensi-jam" class="w-full border border-slate-300 text-xs rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal</label>
+                                        <input type="date" id="presensi-tanggal" class="w-full border border-slate-300 text-xs rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Tugas</label>
+                                    <input type="text" id="presensi-keterangan" placeholder="Contoh: Rapat Koordinasi Maybrat" class="w-full border border-slate-300 text-xs rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
+                                </div>
+
+                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2.5 rounded-lg shadow transition-colors flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i> Simpan Data Presensi
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Rekapitulasi Presensi Pegawai</h4>
+                                    <p class="text-xs text-slate-500">Daftar presensi harian staf Distrik Ayamaru Timur</p>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <input type="date" id="filter-presensi-date" onchange="renderPresensiTable()" class="border border-slate-300 rounded-lg text-xs p-1.5 focus:ring-2 focus:ring-emerald-500">
+                                    <button onclick="printPresensiReport()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                                        <i class="fa-solid fa-print"></i> Cetak Presensi
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                                            <th class="p-3">Nama Pegawai / NIP</th>
+                                            <th class="p-3">Jabatan</th>
+                                            <th class="p-3">Tanggal & Jam</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3">Keterangan</th>
+                                            <th class="p-3 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-presensi-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. ARSIP DIGITAL TAB -->
+                <div id="tab-arsip" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Manajemen Arsip Berkas Digital</h3>
+                            <p class="text-xs text-slate-500">Pengelompokan dokumen internal & berkas per seksi Distrik Ayamaru Timur</p>
+                        </div>
+                        <button onclick="openModalArsip()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow flex items-center gap-2">
+                            <i class="fa-solid fa-folder-plus"></i> Tambah Dokumen Arsip
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2" id="arsip-category-tabs">
+                        <button onclick="filterArsipCategory('semua')" class="arsip-cat-btn bg-slate-900 text-white text-xs px-3.5 py-2 rounded-lg font-medium transition-colors">Semua Berkas</button>
+                        <button onclick="filterArsipCategory('Tata Pemerintahan')" class="arsip-cat-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs px-3.5 py-2 rounded-lg font-medium transition-colors">Tata Pemerintahan</button>
+                        <button onclick="filterArsipCategory('Pemberdayaan Masyarakat')" class="arsip-cat-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs px-3.5 py-2 rounded-lg font-medium transition-colors">Pemberdayaan Masy.</button>
+                        <button onclick="filterArsipCategory('Keuangan')" class="arsip-cat-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs px-3.5 py-2 rounded-lg font-medium transition-colors">Keuangan & Aset</button>
+                        <button onclick="filterArsipCategory('Kepegawaian')" class="arsip-cat-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs px-3.5 py-2 rounded-lg font-medium transition-colors">Kepegawaian</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="arsip-grid-container"></div>
+                </div>
+
+                <!-- 6. LAPORAN & CETAK TAB -->
+                <div id="tab-laporan" class="tab-content space-y-6 hidden">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-2">
+                            <i class="fa-solid fa-print text-emerald-600 mr-2"></i> Pusat Pencetakan Laporan & Rekapitulasi
+                        </h3>
+                        <p class="text-xs text-slate-500">Pilih jenis laporan resmi instansi yang ingin dicetak:</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <div class="border border-slate-200 rounded-xl p-4 hover:border-emerald-500 hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+                                <div>
+                                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold mb-3">
+                                        <i class="fa-solid fa-users-viewfinder text-lg"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Laporan Rekap Presensi Staf</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Cetak daftar hadir pegawai lengkap dengan tanda tangan Kepala Distrik.</p>
+                                </div>
+                                <button onclick="printPresensiReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-print"></i> Cetak Presensi
+                                </button>
+                            </div>
+
+                            <div class="border border-slate-200 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+                                <div>
+                                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold mb-3">
+                                        <i class="fa-solid fa-book text-lg"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Buku Agenda Surat Masuk</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Cetak rekapitulasi buku register seluruh surat masuk Kantor Distrik.</p>
+                                </div>
+                                <button onclick="printSuratMasukReport()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-print"></i> Cetak Register Masuk
+                                </button>
+                            </div>
+
+                            <div class="border border-slate-200 rounded-xl p-4 hover:border-purple-500 hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+                                <div>
+                                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold mb-3">
+                                        <i class="fa-solid fa-paper-plane text-lg"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Buku Register Surat Keluar</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Cetak laporan rekapitulasi seluruh surat edaran dan dinas keluar.</p>
+                                </div>
+                                <button onclick="printSuratKeluarReport()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-print"></i> Cetak Register Keluar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- UNIVERSAL PRINT SECTION CONTAINER (Visible ONLY during print) -->
+    <div id="print-section" class="hidden"></div>
+
+    <!-- MODAL: Tambah Surat Masuk (Dengan Upload File) -->
+    <div id="modal-surat-masuk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-inbox text-blue-600"></i> Register Surat Masuk Baru
+                </h3>
+                <button onclick="closeModal('modal-surat-masuk')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="form-surat-masuk" onsubmit="handleSaveSuratMasuk(event)" class="space-y-3.5 mt-4 text-xs overflow-y-auto custom-scrollbar pr-1">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nomor Surat *</label>
+                    <input type="text" id="sm-nomor" required placeholder="Contoh: 005/12/SAT/2026" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Tanggal Surat *</label>
+                        <input type="date" id="sm-tanggal-surat" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Tanggal Diterima *</label>
+                        <input type="date" id="sm-tanggal-terima" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Instansi / Pengirim *</label>
+                    <input type="text" id="sm-pengirim" required placeholder="Contoh: Bappeda Kabupaten Maybrat" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Perihal Surat *</label>
+                    <input type="text" id="sm-perihal" required placeholder="Contoh: Undangan Musrenbang Distrik Tahun 2026" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Sifat Surat</label>
+                        <select id="sm-sifat" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="Biasa">Biasa</option>
+                            <option value="Penting">Penting</option>
+                            <option value="Sangat Important">Sangat Important</option>
+                            <option value="Rahasia">Rahasia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Status Disposisi</label>
+                        <select id="sm-status" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="Belum Disposisi">Belum Disposisi</option>
+                            <option value="Proses Disposisi">Proses Disposisi</option>
+                            <option value="Selesai">Selesai / Arsip</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Ringkasan Isi Surat</label>
+                    <textarea id="sm-ringkasan" rows="2" placeholder="Ringkasan singkat..." class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Input Upload Berkas / File Surat Masuk -->
+                <div class="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-lg space-y-1">
+                    <label class="block font-semibold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-600"></i> Unggah Berkas Dokumen (PDF / Scan)
+                    </label>
+                    <input type="file" id="sm-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-[11px] text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Format yang didukung: PDF, JPG, PNG, DOC (Maks. 5MB)</p>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-surat-masuk')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow">Simpan Surat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Tambah Surat Keluar (Dengan Upload File) -->
+    <div id="modal-surat-keluar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-emerald-600"></i> Register Surat Keluar Baru
+                </h3>
+                <button onclick="closeModal('modal-surat-keluar')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="form-surat-keluar" onsubmit="handleSaveSuratKeluar(event)" class="space-y-3.5 mt-4 text-xs overflow-y-auto custom-scrollbar pr-1">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nomor Surat Keluar *</label>
+                    <input type="text" id="sk-nomor" required placeholder="Contoh: 140/08/DAT-MB/2026" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Tanggal Surat *</label>
+                        <input type="date" id="sk-tanggal" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Seksi / Pengirim Internal</label>
+                        <select id="sk-seksi" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="Sekretariat Distrik">Sekretariat Distrik</option>
+                            <option value="Seksi Tata Pemerintahan">Seksi Tata Pemerintahan</option>
+                            <option value="Seksi Pemberdayaan Masyarakat">Seksi Pemberdayaan Masy.</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Tujuan Surat / Kepada *</label>
+                    <input type="text" id="sk-tujuan" required placeholder="Contoh: Para Kepala Kampung" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Perihal *</label>
+                    <input type="text" id="sk-perihal" required placeholder="Contoh: Himbauan Kerja Bakti" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Penanggung Jawab / Penandatangan</label>
+                    <input type="text" id="sk-pj" placeholder="Contoh: Kepala Distrik Ayamaru Timur" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <!-- Input Upload Berkas / File Surat Keluar -->
+                <div class="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-lg space-y-1">
+                    <label class="block font-semibold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up text-emerald-600"></i> Unggah Berkas Surat Keluar (PDF / Dokumen)
+                    </label>
+                    <input type="file" id="sk-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-[11px] text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Format yang didukung: PDF, JPG, PNG, DOC (Maks. 5MB)</p>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-surat-keluar')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors shadow">Simpan Surat Keluar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Tambah Arsip Digital -->
+    <div id="modal-arsip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-amber-600"></i> Tambah Arsip Dokumen Digital
+                </h3>
+                <button onclick="closeModal('modal-arsip')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="form-arsip" onsubmit="handleSaveArsip(event)" class="space-y-3.5 mt-4 text-xs overflow-y-auto custom-scrollbar pr-1">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nama / Judul Dokumen *</label>
+                    <input type="text" id="arsip-judul" required placeholder="Contoh: Monografi Distrik" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kategori Arsip *</label>
+                        <select id="arsip-kategori" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="Tata Pemerintahan">Tata Pemerintahan</option>
+                            <option value="Pemberdayaan Masyarakat">Pemberdayaan Masy.</option>
+                            <option value="Keuangan">Keuangan & Aset</option>
+                            <option value="Kepegawaian">Kepegawaian</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Status Retensi Berkas</label>
+                        <select id="arsip-status" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Inaktif">Inaktif</option>
+                            <option value="Permanen">Permanen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kode Berkas / Rak</label>
+                        <input type="text" id="arsip-kode" placeholder="Contoh: ARS-PEM-004" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Tahun Dokumen</label>
+                        <input type="number" id="arsip-tahun" value="2026" class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Keterangan Dokumen</label>
+                    <textarea id="arsip-keterangan" rows="2" placeholder="Keterangan..." class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-arsip')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors shadow">Simpan Dokumen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PRINT DISPOSISI SURAT -->
+    <div id="modal-disposisi" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 no-print">
+                <h3 class="font-bold text-slate-800 text-sm">Lembar Disposisi Kepala Distrik Ayamaru Timur</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="printDisposisiCard()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-print"></i> Cetak Lembar Disposisi
+                    </button>
+                    <button onclick="closeModal('modal-disposisi')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+            </div>
+
+            <!-- Modal Content Preview (Interactive) -->
+            <div id="disposisi-preview-body" class="p-4 space-y-4 text-xs font-sans text-slate-900 overflow-y-auto custom-scrollbar">
+                <!-- Cop Surat Official with Logo -->
+                <div class="flex items-center border-b-4 border-double border-slate-900 pb-3 gap-4">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                        <img src="logo.png" onerror="this.onerror=null; this.src='logo.jpg';" alt="Logo Maybrat" class="w-full h-full object-contain">
+                    </div>
+                    <div class="text-center flex-1">
+                        <h2 class="font-bold text-sm tracking-wide uppercase">PEMERINTAH KABUPATEN MAYBRAT</h2>
+                        <h1 class="font-extrabold text-base tracking-wider uppercase">KANTOR DISTRIK AYAMARU TIMUR</h1>
+                        <p class="text-[10px] italic mt-0.5">Alamat: Jl. Raya Distrik Ayamaru Timur, Kabupaten Maybrat - Papua Barat Daya</p>
+                    </div>
+                </div>
+
+                <div class="text-center my-2">
+                    <h3 class="font-bold text-sm underline tracking-widest uppercase">LEMBAR DISPOSISI</h3>
+                </div>
+
+                <table class="w-full border-collapse border border-slate-800 text-xs">
+                    <tr>
+                        <td class="border border-slate-800 p-2 font-semibold w-1/4 bg-slate-50">Surat Dari / Pengirim:</td>
+                        <td class="border border-slate-800 p-2" id="disp-pengirim">-</td>
+                        <td class="border border-slate-800 p-2 font-semibold w-1/4 bg-slate-50">Tgl Diterima:</td>
+                        <td class="border border-slate-800 p-2" id="disp-tgl-terima">-</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-800 p-2 font-semibold bg-slate-50">No. Surat:</td>
+                        <td class="border border-slate-800 p-2" id="disp-nomor">-</td>
+                        <td class="border border-slate-800 p-2 font-semibold bg-slate-50">No. Agenda:</td>
+                        <td class="border border-slate-800 p-2" id="disp-agenda">-</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-800 p-2 font-semibold bg-slate-50">Tgl Surat:</td>
+                        <td class="border border-slate-800 p-2" id="disp-tgl-surat">-</td>
+                        <td class="border border-slate-800 p-2 font-semibold bg-slate-50">Sifat:</td>
+                        <td class="border border-slate-800 p-2 font-bold" id="disp-sifat">-</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-800 p-2 font-semibold bg-slate-50">Perihal:</td>
+                        <td class="border border-slate-800 p-2" colspan="3" id="disp-perihal">-</td>
+                    </tr>
+                </table>
+
+                <div class="grid grid-cols-2 gap-4 border border-slate-800 p-3 min-h-[140px]">
+                    <div>
+                        <p class="font-bold underline mb-2">DITERUSKAN KEPADA YTH:</p>
+                        <ul class="space-y-1.5 text-[11px]">
+                            <li>[✓] Sekretaris Distrik</li>
+                            <li>[ ] Kasi Tata Pemerintahan</li>
+                            <li>[ ] Kasi Pemberdayaan Masy.</li>
+                            <li>[ ] Kasi Trantib & Umum</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="font-bold underline mb-2">PETUNJUK / INSTRUKSI:</p>
+                        <ul class="space-y-1.5 text-[11px]">
+                            <li>[✓] Tanggapi / Pelajari</li>
+                            <li>[ ] Laksanakan / Tindaklanjuti</li>
+                            <li>[ ] Wakili / Dampingi</li>
+                            <li>[ ] Koordinasikan & Laporkan</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border border-slate-800 p-3 min-h-[80px]">
+                    <p class="font-bold underline mb-1">CATATAN KEPALA DISTRIK:</p>
+                    <p class="italic text-slate-700" id="disp-catatan">Segera koordinasikan dengan seksi terkait.</p>
+                </div>
+
+                <div class="flex justify-between items-end pt-4 px-4">
+                    <div class="text-center">
+                        <p class="text-[11px] text-slate-500">Paraf Staf / Penerima</p>
+                        <div class="h-12"></div>
+                        <p class="font-semibold">( ........................................ )</p>
+                    </div>
+                    <div class="text-center">
+                        <p>Ayamaru Timur, <span id="disp-tgl-ttd">13 Oktober 2026</span></p>
+                        <p class="font-bold">Kepala Distrik Ayamaru Timur</p>
+                        <div class="h-12"></div>
+                        <p class="font-bold underline">IZAKH NAUW, SE</p>
+                        <p class="text-[10px]">NIP. 19820412 201001 1 008</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Database Pengguna dengan Validasi Password
+        const USERS_DB = {
+            "admin.ayamarutimur": { password: "password123", role: 'admin', roleLabel: 'ADMINISTRATOR', name: 'Administrator Distrik', nip: 'NIP. 19880520 201102 1 001', avatar: 'AD', badgeBg: 'bg-emerald-100 text-emerald-800' },
+            "kadistrik.izakh": { password: "password123", role: 'kadistrik', roleLabel: 'KEPALA DISTRIK', name: 'IZAKH NAUW, SE', nip: 'NIP. 19820412 201001 1 008', avatar: 'IN', badgeBg: 'bg-blue-100 text-blue-800' },
+            "staf.otofianus": { password: "password123", role: 'staf', roleLabel: 'STAF SEKSI', name: 'Otofianus Kambuaya', nip: 'NIP. 19961112 202101 2 003', avatar: 'SB', badgeBg: 'bg-amber-100 text-amber-800' }
+        };
+
+        let currentUser = null;
+
+        const DEFAULT_PEGAWAI = [
+            { id: "PEG-01", nama: "IZAKH NAUW, SE", nip: "19820412 201001 1 008", jabatan: "Kepala Distrik" },
+            { id: "PEG-02", nama: "Marten Way, S.Sos", nip: "19850615 201202 1 004", jabatan: "Sekretaris Distrik" },
+            { id: "PEG-03", nama: "Petrus Yumte, A.Md", nip: "19890120 201403 1 002", jabatan: "Kasi Tata Pemerintahan" },
+            { id: "PEG-04", nama: "Maria Nauw, S.IP", nip: "19910810 201701 2 005", jabatan: "Kasi Pemberdayaan Masy." },
+            { id: "PEG-05", nama: "Lukas Jitmau", nip: "19930304 201902 1 009", jabatan: "Kasubag Keuangan" },
+            { id: "PEG-06", nama: "Serafina Bleskadit", nip: "19961112 202101 2 003", jabatan: "Staf Administrasi" }
+        ];
+
+        const DEFAULT_SURAT_MASUK = [
+            {
+                id: "SM-101",
+                noAgenda: "001/SAT/2026",
+                nomor: "005/120/SETDA-MB/2026",
+                tanggalSurat: "2026-10-02",
+                tanggalTerima: "2026-10-04",
+                pengirim: "Sekretariat Daerah Kab. Maybrat",
+                perihal: "Undangan Rapat Koordinasi Kepala Distrik Se-Kabupaten Maybrat",
+                sifat: "Penting",
+                status: "Proses Disposisi",
+                ringkasan: "Pembahasan persiapan alokasi dana desa dan evaluasi pelayanan publik wilayah distrik.",
+                fileName: "Undangan_Rakor_Setda.pdf",
+                fileData: "" // placeholder data URL jika ada
+            },
+            {
+                id: "SM-102",
+                noAgenda: "002/SAT/2026",
+                nomor: "180/04/BAPPEDA/2026",
+                tanggalSurat: "2026-09-28",
+                tanggalTerima: "2026-10-01",
+                pengirim: "Bappeda Kabupaten Maybrat",
+                perihal: "Permintaan Data Usulan Musrenbang Distrik Ayamaru Timur 2027",
+                sifat: "Biasa",
+                status: "Selesai",
+                ringkasan: "Pengiriman data prioritas pembangunan infrastruktur jalan kampung dan fasilitas air bersih.",
+                fileName: "Musrenbang_2027.pdf",
+                fileData: ""
+            }
+        ];
+
+        const DEFAULT_SURAT_KELUAR = [
+            {
+                id: "SK-201",
+                nomor: "140/01/DAT-MB/2026",
+                tanggal: "2026-10-05",
+                tujuan: "Para Kepala Kampung Se-Distrik Ayamaru Timur",
+                perihal: "Himbauan Pelaksanaan Pendataan Warga dan Kerja Bakti Lingkungan",
+                seksi: "Seksi Tata Pemerintahan",
+                pj: "Kepala Distrik Ayamaru Timur",
+                fileName: "Himbauan_Kerja_Bakti.pdf",
+                fileData: ""
+            },
+            {
+                id: "SK-202",
+                nomor: "050/02/DAT-MB/2026",
+                tanggal: "2026-09-20",
+                tujuan: "Kepala Dinas Pemberdayaan Masyarakat Kab. Maybrat",
+                perihal: "Laporan Rekapitulasi Realisasi Penyaluran Bantuan Kampung Triwulan III",
+                seksi: "Seksi Pemberdayaan Masyarakat",
+                pj: "Sekretaris Distrik",
+                fileName: "Laporan_Bantuan_Kampung.pdf",
+                fileData: ""
+            }
+        ];
+
+        const DEFAULT_PRESENSI = [
+            { id: "PR-01", pegawaiId: "PEG-01", nama: "IZAKH NAUW, SE", nip: "19820412 201001 1 008", jabatan: "Kepala Distrik", status: "Hadir", jam: "07:45", tanggal: "2026-10-13", keterangan: "Tugas Kantor" },
+            { id: "PR-02", pegawaiId: "PEG-02", nama: "Marten Way, S.Sos", nip: "19850615 201202 1 004", jabatan: "Sekretaris Distrik", status: "Hadir", jam: "07:50", tanggal: "2026-10-13", keterangan: "Tugas Kantor" },
+            { id: "PR-03", pegawaiId: "PEG-03", nama: "Petrus Yumte, A.Md", nip: "19890120 201403 1 002", jabatan: "Kasi Tata Pemerintahan", status: "Dinas Luar", jam: "08:10", tanggal: "2026-10-13", keterangan: "Supervisi Kampung Framu" }
+        ];
+
+        const DEFAULT_ARSIP = [
+            {
+                id: "AR-301",
+                judul: "Dokumen Master Monografi Distrik Ayamaru Timur Tahun 2025",
+                kategori: "Tata Pemerintahan",
+                kode: "ARS-PEM-001",
+                tahun: "2025",
+                status: "Permanen",
+                keterangan: "Tersimpan di Lemari Arsip A1 Utama Kantor Distrik"
+            }
+        ];
+
+        let state = {
+            suratMasuk: JSON.parse(localStorage.getItem('sat_surat_masuk')) || DEFAULT_SURAT_MASUK,
+            suratKeluar: JSON.parse(localStorage.getItem('sat_surat_keluar')) || DEFAULT_SURAT_KELUAR,
+            presensi: JSON.parse(localStorage.getItem('sat_presensi')) || DEFAULT_PRESENSI,
+            arsip: JSON.parse(localStorage.getItem('sat_arsip')) || DEFAULT_ARSIP,
+            pegawai: DEFAULT_PEGAWAI
+        };
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const errorBox = document.getElementById('login-error');
+
+            const matchedUser = USERS_DB[usernameInput];
+
+            if (matchedUser && matchedUser.password === passwordInput) {
+                currentUser = matchedUser;
+                localStorage.setItem('sat_active_user', JSON.stringify(currentUser));
+                document.getElementById('login-screen').classList.add('hidden');
+                errorBox.classList.add('hidden');
+                updateHeaderProfile();
+                applyRolePermissions();
+                showToast(`Selamat datang, ${currentUser.name}!`);
+            } else {
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('sat_active_user');
+            currentUser = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            showToast('Anda telah keluar dari sistem.', 'info');
+        }
+
+        function updateHeaderProfile() {
+            if (!currentUser) return;
+            document.getElementById('user-avatar').innerText = currentUser.avatar;
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('user-display-nip').innerText = currentUser.nip;
+            const badge = document.getElementById('user-role-badge');
+            badge.innerText = currentUser.roleLabel;
+            badge.className = `px-1.5 py-0.5 text-[9px] font-bold rounded ${currentUser.badgeBg}`;
+        }
+
+        function applyRolePermissions() {
+            if (!currentUser) return;
+            const btnReset = document.getElementById('btn-reset-demo');
+            if (btnReset) btnReset.style.display = (currentUser.role === 'admin') ? 'flex' : 'none';
+            renderSuratMasuk();
+            renderSuratKeluar();
+            renderPresensiTable();
+            renderArsipGrid();
+        }
+
+        function saveState() {
+            localStorage.setItem('sat_surat_masuk', JSON.stringify(state.suratMasuk));
+            localStorage.setItem('sat_surat_keluar', JSON.stringify(state.suratKeluar));
+            localStorage.setItem('sat_presensi', JSON.stringify(state.presensi));
+            localStorage.setItem('sat_arsip', JSON.stringify(state.arsip));
+            updateDashboardStats();
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-700 text-white' : type === 'info' ? 'bg-slate-800 text-white' : 'bg-red-700 text-white';
+            toast.className = `${bgClass} p-3.5 rounded-xl shadow-xl flex items-center gap-3 text-xs font-medium transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-emerald-600', 'text-white');
+                item.classList.add('text-slate-300');
+            });
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeNav) {
+                activeNav.classList.add('bg-emerald-600', 'text-white');
+                activeNav.classList.remove('text-slate-300');
+            }
+            if (tabId === 'surat-masuk') renderSuratMasuk();
+            if (tabId === 'surat-keluar') renderSuratKeluar();
+            if (tabId === 'presensi') renderPresensiTable();
+            if (tabId === 'arsip') renderArsipGrid();
+            if (tabId === 'dashboard') updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('stat-surat-masuk').innerText = state.suratMasuk.length;
+            document.getElementById('stat-surat-keluar').innerText = state.suratKeluar.length;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayPresensi = state.presensi.filter(p => p.tanggal === todayStr && (p.status === 'Hadir' || p.status === 'Dinas Luar'));
+            document.getElementById('stat-presensi-today').innerText = `${todayPresensi.length} Staf`;
+            document.getElementById('stat-arsip').innerText = state.arsip.length;
+
+            const recentContainer = document.getElementById('dashboard-recent-surat');
+            recentContainer.innerHTML = '';
+            state.suratMasuk.slice(0, 4).forEach(s => {
+                recentContainer.innerHTML += `
+                    <div class="p-3.5 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                        <div class="space-y-0.5 max-w-[75%]">
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${s.nomor}</span>
+                            <h5 class="font-semibold text-slate-800 text-xs truncate">${s.perihal}</h5>
+                            <p class="text-[11px] text-slate-500">Dari: ${s.pengirim}</p>
+                        </div>
+                        <button onclick="openDisposisiModal('${s.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-300 font-medium transition-colors">
+                            <i class="fa-solid fa-file-signature text-blue-600 mr-1"></i> Disposisi
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSuratMasuk() {
+            const tbody = document.getElementById('table-surat-masuk-body');
+            const search = document.getElementById('search-surat-masuk').value.toLowerCase();
+            tbody.innerHTML = '';
+            const filtered = state.suratMasuk.filter(s => s.nomor.toLowerCase().includes(search) || s.pengirim.toLowerCase().includes(search) || s.perihal.toLowerCase().includes(search));
+            filtered.forEach(s => {
+                let fileAction = `<span class="text-[10px] text-slate-400 italic">Tidak ada file</span>`;
+                if (s.fileName) {
+                    const downloadHref = s.fileData ? s.fileData : '#';
+                    fileAction = `
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-medium truncate max-w-[120px]" title="${s.fileName}">
+                                <i class="fa-solid fa-file-pdf"></i> ${s.fileName}
+                            </span>
+                            <a href="${downloadHref}" download="${s.fileName}" onclick="${!s.fileData ? `alert('Simulasi Unduh: Berkas ${s.fileName} berhasil diunduh.'); return false;` : ''}" class="p-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded border border-emerald-200 transition-colors" title="Unduh Berkas">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="p-3.5 font-bold text-slate-700">${s.noAgenda}</td>
+                        <td class="p-3.5">
+                            <div class="font-semibold text-slate-800">${s.nomor}</div>
+                            <div class="text-[11px] text-slate-500">Tgl: ${s.tanggalSurat}</div>
+                        </td>
+                        <td class="p-3.5 font-medium text-slate-700">${s.pengirim}</td>
+                        <td class="p-3.5 max-w-xs">
+                            <div class="font-semibold text-slate-800 truncate">${s.perihal}</div>
+                        </td>
+                        <td class="p-3.5">${fileAction}</td>
+                        <td class="p-3.5 text-center flex items-center justify-center gap-1.5">
+                            <button onclick="openDisposisiModal('${s.id}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg border border-blue-200" title="Buka Disposisi"><i class="fa-solid fa-file-signature"></i></button>
+                            <button onclick="deleteSuratMasuk('${s.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200" title="Hapus Surat Masuk"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteSuratMasuk(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data surat masuk ini?')) {
+                state.suratMasuk = state.suratMasuk.filter(s => s.id !== id);
+                saveState();
+                renderSuratMasuk();
+                showToast('Surat masuk berhasil dihapus!');
+            }
+        }
+
+        function openModalSuratMasuk() { document.getElementById('form-surat-masuk').reset(); document.getElementById('modal-surat-masuk').classList.remove('hidden'); }
+        function handleSaveSuratMasuk(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('sm-file');
+            const file = fileInput.files[0];
+            const fileName = file ? file.name : null;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    saveNewSuratMasuk(fileName, event.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveNewSuratMasuk(null, null);
+            }
+        }
+
+        function saveNewSuratMasuk(fileName, fileData) {
+            const newSurat = {
+                id: "SM-" + Date.now(),
+                noAgenda: `00${state.suratMasuk.length + 1}/SAT/2026`,
+                nomor: document.getElementById('sm-nomor').value,
+                tanggalSurat: document.getElementById('sm-tanggal-surat').value,
+                tanggalTerima: document.getElementById('sm-tanggal-terima').value,
+                pengirim: document.getElementById('sm-pengirim').value,
+                perihal: document.getElementById('sm-perihal').value,
+                sifat: document.getElementById('sm-sifat').value,
+                status: document.getElementById('sm-status').value,
+                ringkasan: document.getElementById('sm-ringkasan').value,
+                fileName: fileName,
+                fileData: fileData
+            };
+            state.suratMasuk.unshift(newSurat);
+            saveState();
+            closeModal('modal-surat-masuk');
+            renderSuratMasuk();
+            showToast('Surat masuk dan berkas berhasil diunggah!');
+        }
+
+        function renderSuratKeluar() {
+            const tbody = document.getElementById('table-surat-keluar-body');
+            const search = document.getElementById('search-surat-keluar').value.toLowerCase();
+            tbody.innerHTML = '';
+            const filtered = state.suratKeluar.filter(s => s.nomor.toLowerCase().includes(search) || s.tujuan.toLowerCase().includes(search) || s.perihal.toLowerCase().includes(search));
+            filtered.forEach(s => {
+                let fileAction = `<span class="text-[10px] text-slate-400 italic">Tidak ada file</span>`;
+                if (s.fileName) {
+                    const downloadHref = s.fileData ? s.fileData : '#';
+                    fileAction = `
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium truncate max-w-[120px]" title="${s.fileName}">
+                                <i class="fa-solid fa-file-pdf"></i> ${s.fileName}
+                            </span>
+                            <a href="${downloadHref}" download="${s.fileName}" onclick="${!s.fileData ? `alert('Simulasi Unduh: Berkas ${s.fileName} berhasil diunduh.'); return false;` : ''}" class="p-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded border border-emerald-200 transition-colors" title="Unduh Berkas">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3.5 font-bold text-slate-800">${s.nomor}</td>
+                        <td class="p-3.5 font-medium text-slate-600">${s.tanggal}</td>
+                        <td class="p-3.5 font-semibold text-slate-700">${s.tujuan}</td>
+                        <td class="p-3.5 max-w-xs truncate font-medium text-slate-800">${s.perihal}</td>
+                        <td class="p-3.5">${fileAction}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="deleteSuratKeluar('${s.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200" title="Hapus Surat Keluar"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteSuratKeluar(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data surat keluar ini?')) {
+                state.suratKeluar = state.suratKeluar.filter(s => s.id !== id);
+                saveState();
+                renderSuratKeluar();
+                showToast('Surat keluar berhasil dihapus!');
+            }
+        }
+
+        function openModalSuratKeluar() { document.getElementById('form-surat-keluar').reset(); document.getElementById('modal-surat-keluar').classList.remove('hidden'); }
+        function handleSaveSuratKeluar(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('sk-file');
+            const file = fileInput.files[0];
+            const fileName = file ? file.name : null;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    saveNewSuratKeluar(fileName, event.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveNewSuratKeluar(null, null);
+            }
+        }
+
+        function saveNewSuratKeluar(fileName, fileData) {
+            const newSk = {
+                id: "SK-" + Date.now(),
+                nomor: document.getElementById('sk-nomor').value,
+                tanggal: document.getElementById('sk-tanggal').value,
+                seksi: document.getElementById('sk-seksi').value,
+                tujuan: document.getElementById('sk-tujuan').value,
+                perihal: document.getElementById('sk-perihal').value,
+                pj: document.getElementById('sk-pj').value || 'Kepala Distrik Ayamaru Timur',
+                fileName: fileName,
+                fileData: fileData
+            };
+            state.suratKeluar.unshift(newSk);
+            saveState();
+            closeModal('modal-surat-keluar');
+            renderSuratKeluar();
+            showToast('Surat keluar dan berkas berhasil diunggah!');
+        }
+
+        function populatePegawaiDropdown() {
+            const select = document.getElementById('presensi-pegawai-select');
+            select.innerHTML = `<option value="">-- Pilih Nama Pegawai --</option>`;
+            state.pegawai.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.nama} (${p.jabatan})</option>`;
+            });
+        }
+
+        function autofillPegawaiInfo() {
+            const selectId = document.getElementById('presensi-pegawai-select').value;
+            const peg = state.pegawai.find(p => p.id === selectId);
+            if (peg) {
+                document.getElementById('presensi-nip').value = peg.nip;
+                document.getElementById('presensi-jabatan').value = peg.jabatan;
+            }
+        }
+
+        function handleSavePresensi(e) {
+            e.preventDefault();
+            const pegawaiId = document.getElementById('presensi-pegawai-select').value;
+            const peg = state.pegawai.find(p => p.id === pegawaiId);
+            if (!peg) return;
+            const newPresensi = {
+                id: "PR-" + Date.now(),
+                pegawaiId: peg.id,
+                nama: peg.nama,
+                nip: peg.nip,
+                jabatan: peg.jabatan,
+                status: document.getElementById('presensi-status').value,
+                jam: document.getElementById('presensi-jam').value || '08:00',
+                tanggal: document.getElementById('presensi-tanggal').value,
+                keterangan: document.getElementById('presensi-keterangan').value || '-'
+            };
+            state.presensi = state.presensi.filter(p => !(p.pegawaiId === peg.id && p.tanggal === newPresensi.tanggal));
+            state.presensi.unshift(newPresensi);
+            saveState();
+            renderPresensiTable();
+            showToast(`Presensi ${peg.nama} disimpan!`);
+            document.getElementById('form-quick-presensi').reset();
+        }
+
+        function renderPresensiTable() {
+            const tbody = document.getElementById('table-presensi-body');
+            const selectedDate = document.getElementById('filter-presensi-date').value;
+            tbody.innerHTML = '';
+            const filtered = selectedDate ? state.presensi.filter(p => p.tanggal === selectedDate) : state.presensi;
+            filtered.forEach(p => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3"><div class="font-bold text-slate-800">${p.nama}</div><div class="text-[10px] text-slate-500">NIP: ${p.nip}</div></td>
+                        <td class="p-3 font-medium text-slate-700">${p.jabatan}</td>
+                        <td class="p-3 text-slate-600">${p.tanggal} (${p.jam} WIT)</td>
+                        <td class="p-3"><span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">${p.status}</span></td>
+                        <td class="p-3 text-slate-600 text-xs">${p.keterangan}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deletePresensi('${p.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200" title="Hapus Presensi"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deletePresensi(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data presensi ini?')) {
+                state.presensi = state.presensi.filter(p => p.id !== id);
+                saveState();
+                renderPresensiTable();
+                showToast('Data presensi berhasil dihapus!');
+            }
+        }
+
+        let currentArsipFilter = 'semua';
+        function filterArsipCategory(cat) {
+            currentArsipFilter = cat;
+            renderArsipGrid();
+        }
+
+        function renderArsipGrid() {
+            const container = document.getElementById('arsip-grid-container');
+            container.innerHTML = '';
+            const filtered = currentArsipFilter === 'semua' ? state.arsip : state.arsip.filter(a => a.kategori === currentArsipFilter);
+            filtered.forEach(a => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800">${a.kategori}</span>
+                                <button onclick="deleteArsip('${a.id}')" class="text-red-500 hover:text-red-700 p-1" title="Hapus Arsip"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">${a.judul}</h4>
+                            <p class="text-xs text-slate-500">${a.keterangan}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteArsip(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus dokumen arsip ini?')) {
+                state.arsip = state.arsip.filter(a => a.id !== id);
+                saveState();
+                renderArsipGrid();
+                showToast('Dokumen arsip berhasil dihapus!');
+            }
+        }
+
+        function openModalArsip() { document.getElementById('form-arsip').reset(); document.getElementById('modal-arsip').classList.remove('hidden'); }
+        function handleSaveArsip(e) {
+            e.preventDefault();
+            const newArsip = {
+                id: "AR-" + Date.now(),
+                judul: document.getElementById('arsip-judul').value,
+                kategori: document.getElementById('arsip-kategori').value,
+                status: document.getElementById('arsip-status').value,
+                kode: document.getElementById('arsip-kode').value || 'ARS-001',
+                tahun: document.getElementById('arsip-tahun').value || '2026',
+                keterangan: document.getElementById('arsip-keterangan').value || '-'
+            };
+            state.arsip.unshift(newArsip);
+            saveState();
+            closeModal('modal-arsip');
+            renderArsipGrid();
+            showToast('Arsip disimpan!');
+        }
+
+        function openDisposisiModal(suratId) {
+            const surat = state.suratMasuk.find(s => s.id === suratId);
+            if (!surat) return;
+            document.getElementById('disp-pengirim').innerText = surat.pengirim;
+            document.getElementById('disp-tgl-terima').innerText = surat.tanggalTerima;
+            document.getElementById('disp-nomor').innerText = surat.nomor;
+            document.getElementById('disp-agenda').innerText = surat.noAgenda;
+            document.getElementById('disp-tgl-surat').innerText = surat.tanggalSurat;
+            document.getElementById('disp-sifat').innerText = surat.sifat;
+            document.getElementById('disp-perihal').innerText = surat.perihal;
+            document.getElementById('disp-catatan').innerText = surat.ringkasan || 'Koordinasikan dengan seksi terkait.';
+            document.getElementById('modal-disposisi').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+
+        /* UNIVERSAL HIGH-QUALITY PRINT ENGINE */
+        function executePrint(htmlContent) {
+            const printSec = document.getElementById('print-section');
+            printSec.innerHTML = htmlContent;
+            printSec.classList.remove('hidden');
+            window.print();
+            printSec.classList.add('hidden');
+        }
+
+        function printDisposisiCard() {
+            const content = document.getElementById('disposisi-preview-body').innerHTML;
+            executePrint(`
+                <div style="font-family: Arial, sans-serif; color: #000; padding: 10px;">
+                    ${content}
+                </div>
+            `);
+        }
+
+        function printPresensiReport() {
+            const selectedDate = document.getElementById('filter-presensi-date').value || new Date().toISOString().split('T')[0];
+            const filtered = state.presensi.filter(p => p.tanggal === selectedDate);
+            
+            let rows = '';
+            filtered.forEach((p, index) => {
+                rows += `<tr>
+                    <td style="text-align: center;">${index + 1}</td>
+                    <td>${p.nama}<br><span style="font-size: 9pt; color: #555;">NIP: ${p.nip}</span></td>
+                    <td>${p.jabatan}</td>
+                    <td style="text-align: center;">${p.jam} WIT</td>
+                    <td style="text-align: center;"><b>${p.status}</b></td>
+                    <td>${p.keterangan}</td>
+                </tr>`;
+            });
+
+            if (filtered.length === 0) {
+                rows = `<tr><td colspan="6" style="text-align: center;">Tidak ada data presensi pada tanggal ${selectedDate}</td></tr>`;
+            }
+
+            executePrint(`
+                <div style="font-family: Arial, sans-serif; color: #000;">
+                    <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <img src="logo.png" onerror="this.onerror=null; this.src='logo.jpg';" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="text-align: center; flex: 1;">
+                            <h3 style="margin: 0; font-size: 12pt;">PEMERINTAH KABUPATEN MAYBRAT</h3>
+                            <h2 style="margin: 2px 0; font-size: 14pt; font-weight: bold;">KANTOR DISTRIK AYAMARU TIMUR</h2>
+                            <p style="margin: 0; font-size: 9pt; font-style: italic;">Alamat: Jl. Raya Distrik Ayamaru Timur, Kabupaten Maybrat, Papua Barat Daya</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0; font-size: 12pt; text-decoration: underline;">LAPORAN REKAPITULASI PRESENSI PEGAWAI</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 10pt;">Tanggal: ${selectedDate}</p>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt;" border="1">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="width: 35px; text-align: center;">No</th>
+                                <th>Nama Pegawai / NIP</th>
+                                <th>Jabatan</th>
+                                <th style="text-align: center;">Jam Masuk</th>
+                                <th style="text-align: center;">Status</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+                        <div></div>
+                        <div style="text-align: center;">
+                            <p style="margin: 0;">Ayamaru Timur, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                            <p style="margin: 2px 0; font-weight: bold;">Kepala Distrik Ayamaru Timur</p>
+                            <div style="height: 50px;"></div>
+                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">IZAKH NAUW, SE</p>
+                            <p style="margin: 0; font-size: 9pt;">NIP. 19820412 201001 1 008</p>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function printSuratMasukReport() {
+            let rows = '';
+            state.suratMasuk.forEach((s, index) => {
+                rows += `<tr>
+                    <td style="text-align: center;">${index + 1}</td>
+                    <td style="text-align: center;">${s.noAgenda}</td>
+                    <td><b>${s.nomor}</b><br><span style="font-size: 9pt;">Tgl: ${s.tanggalSurat}</span></td>
+                    <td>${s.pengirim}</td>
+                    <td>${s.perihal}</td>
+                    <td style="text-align: center;">${s.sifat}</td>
+                </tr>`;
+            });
+
+            executePrint(`
+                <div style="font-family: Arial, sans-serif; color: #000;">
+                    <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <img src="logo.png" onerror="this.onerror=null; this.src='logo.jpg';" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="text-align: center; flex: 1;">
+                            <h3 style="margin: 0; font-size: 12pt;">PEMERINTAH KABUPATEN MAYBRAT</h3>
+                            <h2 style="margin: 2px 0; font-size: 14pt; font-weight: bold;">KANTOR DISTRIK AYAMARU TIMUR</h2>
+                            <p style="margin: 0; font-size: 9pt; font-style: italic;">Alamat: Jl. Raya Distrik Ayamaru Timur, Kabupaten Maybrat, Papua Barat Daya</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0; font-size: 12pt; text-decoration: underline;">BUKU AGENDA / REGISTER SURAT MASUK</h4>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt;" border="1">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="width: 30px; text-align: center;">No</th>
+                                <th style="text-align: center;">No. Agenda</th>
+                                <th>Nomor & Tgl Surat</th>
+                                <th>Pengirim</th>
+                                <th>Perihal</th>
+                                <th style="text-align: center;">Sifat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+                        <div></div>
+                        <div style="text-align: center;">
+                            <p style="margin: 0;">Ayamaru Timur, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                            <p style="margin: 2px 0; font-weight: bold;">Kepala Distrik Ayamaru Timur</p>
+                            <div style="height: 50px;"></div>
+                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">IZAKH NAUW, SE</p>
+                            <p style="margin: 0; font-size: 9pt;">NIP. 19820412 201001 1 008</p>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function printSuratKeluarReport() {
+            let rows = '';
+            state.suratKeluar.forEach((s, index) => {
+                rows += `<tr>
+                    <td style="text-align: center;">${index + 1}</td>
+                    <td><b>${s.nomor}</b><br><span style="font-size: 9pt;">Tgl: ${s.tanggal}</span></td>
+                    <td>${s.tujuan}</td>
+                    <td>${s.perihal}</td>
+                    <td>${s.seksi}</td>
+                </tr>`;
+            });
+
+            executePrint(`
+                <div style="font-family: Arial, sans-serif; color: #000;">
+                    <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <img src="logo.png" onerror="this.onerror=null; this.src='logo.jpg';" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="text-align: center; flex: 1;">
+                            <h3 style="margin: 0; font-size: 12pt;">PEMERINTAH KABUPATEN MAYBRAT</h3>
+                            <h2 style="margin: 2px 0; font-size: 14pt; font-weight: bold;">KANTOR DISTRIK AYAMARU TIMUR</h2>
+                            <p style="margin: 0; font-size: 9pt; font-style: italic;">Alamat: Jl. Raya Distrik Ayamaru Timur, Kabupaten Maybrat, Papua Barat Daya</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0; font-size: 12pt; text-decoration: underline;">BUKU AGENDA / REGISTER SURAT KELUAR</h4>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt;" border="1">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="width: 30px; text-align: center;">No</th>
+                                <th>Nomor & Tgl Surat</th>
+                                <th>Tujuan Kepada</th>
+                                <th>Perihal</th>
+                                <th>Seksi / Pembuat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+                        <div></div>
+                        <div style="text-align: center;">
+                            <p style="margin: 0;">Ayamaru Timur, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                            <p style="margin: 2px 0; font-weight: bold;">Kepala Distrik Ayamaru Timur</p>
+                            <div style="height: 50px;"></div>
+                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">IZAKH NAUW, SE</p>
+                            <p style="margin: 0; font-size: 9pt;">NIP. 19820412 201001 1 008</p>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function resetDataModal() {
+            if (confirm('Kembalikan ke data awal?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        window.onload = function() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('current-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('current-time').innerText = now.toLocaleTimeString('id-ID') + ' WIT';
+            }, 1000);
+
+            document.getElementById('toggle-mobile-menu').addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.toggle('hidden');
+            });
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('presensi-tanggal').value = todayStr;
+            document.getElementById('filter-presensi-date').value = todayStr;
+
+            populatePegawaiDropdown();
+
+            const storedUser = localStorage.getItem('sat_active_user');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                document.getElementById('login-screen').classList.add('hidden');
+                updateHeaderProfile();
+                applyRolePermissions();
+            }
+
+            updateDashboardStats();
+            renderSuratMasuk();
+            renderSuratKeluar();
+            renderPresensiTable();
+            renderArsipGrid();
+        };
+    </script>
+</body>
+</html>
